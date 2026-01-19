@@ -752,5 +752,667 @@
             localStorage.setItem('consensusai_profile', JSON.stringify(userProfile));
         }
     </script>
+    <!-- 在你的index.html中，找到</body>标签前，添加以下代码 -->
+
+<!-- 登录选择模态框 -->
+<div id="auth-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+    <div style="background: white; padding: 40px 30px; border-radius: 20px; width: 90%; max-width: 380px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); position: relative;">
+        <button id="close-auth" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; color: #999; cursor: pointer;">×</button>
+        
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #6a11cb, #2575fc); border-radius: 15px; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold;">C</div>
+            <h2 style="color: #2c3e50; margin-bottom: 8px;">欢迎使用 ConsensusAI</h2>
+            <p style="color: #666; font-size: 14px;">专业心理咨询协作平台</p>
+        </div>
+        
+        <!-- 社交登录按钮 -->
+        <div style="margin-bottom: 25px;">
+            <h4 style="margin-bottom: 15px; color: #555; text-align: center; font-weight: 500;">快速登录</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <button class="social-btn wechat" onclick="wechatLogin()">
+                    <span style="font-size: 18px;">💚</span> 微信登录
+                </button>
+                <button class="social-btn qq" onclick="qqLogin()">
+                    <span style="font-size: 18px;">🐧</span> QQ登录
+                </button>
+                <button class="social-btn phone" onclick="showPhoneLogin()">
+                    <span style="font-size: 18px;">📱</span> 手机登录
+                </button>
+                <button class="social-btn email" onclick="showEmailLogin()">
+                    <span style="font-size: 18px;">📧</span> 邮箱登录
+                </button>
+            </div>
+        </div>
+        
+        <!-- 手机登录表单 -->
+        <div id="phone-login-form" style="display: none; margin-top: 20px;">
+            <h4 style="margin-bottom: 15px; color: #555;">手机号登录</h4>
+            <div style="margin-bottom: 15px;">
+                <input type="tel" id="phone-number" placeholder="请输入手机号" style="width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px;">
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="text" id="verify-code" placeholder="验证码" style="flex: 1; padding: 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px;">
+                <button id="send-code-btn" style="padding: 0 20px; background: #f0f2f5; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; cursor: pointer;">
+                    获取验证码
+                </button>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="phoneLogin()" style="flex: 1; padding: 14px; background: linear-gradient(135deg, #6a11cb, #2575fc); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                    登录/注册
+                </button>
+                <button onclick="hideForms()" style="padding: 14px 20px; background: #f8f9fa; color: #666; border: 1px solid #ddd; border-radius: 10px; font-weight: 500; cursor: pointer;">
+                    返回
+                </button>
+            </div>
+        </div>
+        
+        <!-- 邮箱登录表单 -->
+        <div id="email-login-form" style="display: none; margin-top: 20px;">
+            <h4 style="margin-bottom: 15px; color: #555;">邮箱登录</h4>
+            <div style="margin-bottom: 15px;">
+                <input type="email" id="email-input" placeholder="请输入邮箱地址" style="width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <input type="password" id="password-input" placeholder="请输入密码" style="width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px;">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="emailLogin()" style="flex: 1; padding: 14px; background: linear-gradient(135deg, #6a11cb, #2575fc); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                    登录
+                </button>
+                <button onclick="emailSignup()" style="padding: 14px 20px; background: #f8f9fa; color: #666; border: 1px solid #ddd; border-radius: 10px; font-weight: 500; cursor: pointer;">
+                    注册
+                </button>
+                <button onclick="hideForms()" style="padding: 14px 20px; background: #f8f9fa; color: #666; border: 1px solid #ddd; border-radius: 10px; font-weight: 500; cursor: pointer;">
+                    返回
+                </button>
+            </div>
+        </div>
+        
+        <!-- 用户协议 -->
+        <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
+            <p style="font-size: 12px; color: #999; line-height: 1.5;">
+                登录即表示同意 <a href="#" style="color: #6a11cb;">用户协议</a> 和 <a href="#" style="color: #6a11cb;">隐私政策</a>
+                <br>本平台仅提供引导支持，不提供专业心理咨询
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- 微信扫码模态框 -->
+<div id="wechat-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2001; justify-content: center; align-items: center;">
+    <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 320px;">
+        <h3 style="margin-bottom: 20px; color: #2c3e50;">微信扫码登录</h3>
+        <div id="wechat-qrcode" style="width: 200px; height: 200px; background: #f5f5f5; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #666;">
+            <!-- 这里显示微信二维码 -->
+            微信扫码功能需后端支持
+        </div>
+        <p style="color: #666; font-size: 14px; margin-bottom: 25px;">请使用微信扫描二维码登录</p>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="closeWechatModal()" style="flex: 1; padding: 12px; background: #f8f9fa; color: #333; border: 1px solid #ddd; border-radius: 10px; cursor: pointer;">
+                取消
+            </button>
+            <button onclick="simulateWechatLogin()" style="flex: 1; padding: 12px; background: #07c160; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                模拟登录
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 社交登录按钮样式 */
+    .social-btn {
+        padding: 14px;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        background: white;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .social-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .social-btn.wechat:hover { border-color: #07c160; background: #f0fff4; }
+    .social-btn.qq:hover { border-color: #12b7f5; background: #f0f9ff; }
+    .social-btn.phone:hover { border-color: #6a11cb; background: #f5f0ff; }
+    .social-btn.email:hover { border-color: #2575fc; background: #f0f5ff; }
+</style>
+
+<script>
+// ================= 用户系统配置 =================
+const USER_CONFIG = {
+    // 支持的登录方式
+    loginMethods: ['wechat', 'phone', 'qq', 'email'],
+    
+    // 用户类型
+    userTypes: {
+        free: {
+            name: '免费用户',
+            maxSessions: 2,
+            maxParticipants: 2,
+            features: ['基础对话', '简单引导']
+        },
+        professional: {
+            name: '专业用户',
+            maxSessions: 10,
+            maxParticipants: 5,
+            features: ['高级引导', '文件分析', '数据导出']
+        },
+        enterprise: {
+            name: '企业用户',
+            maxSessions: 50,
+            maxParticipants: 20,
+            features: ['团队管理', 'API接入', '定制功能']
+        }
+    },
+    
+    // 默认设置
+    defaultSettings: {
+        theme: 'light',
+        language: 'zh-CN',
+        notifications: true,
+        autoSave: true,
+        privacy: 'private'
+    }
+};
+
+// ================= 全局状态 =================
+let currentUser = null;
+let authModal = document.getElementById('auth-modal');
+let wechatModal = document.getElementById('wechat-modal');
+
+// ================= 初始化 =================
+document.addEventListener('DOMContentLoaded', function() {
+    // 检查登录状态
+    checkLoginStatus();
+    
+    // 设置事件监听
+    setupAuthListeners();
+});
+
+// 检查登录状态
+function checkLoginStatus() {
+    const savedUser = localStorage.getItem('consensusai_user_v2');
+    if (savedUser) {
+        try {
+            currentUser = JSON.parse(savedUser);
+            if (currentUser && currentUser.id) {
+                // 用户已登录，更新UI
+                updateUIForLoggedInUser();
+                return;
+            }
+        } catch (e) {
+            console.error('解析用户数据失败:', e);
+        }
+    }
+    
+    // 未登录，显示登录模态框
+    setTimeout(() => {
+        authModal.style.display = 'flex';
+    }, 1500);
+}
+
+// ================= 登录功能 =================
+
+// 微信登录
+function wechatLogin() {
+    // 显示微信扫码模态框
+    authModal.style.display = 'none';
+    wechatModal.style.display = 'flex';
+    
+    // 这里应该生成真实的微信二维码
+    // 暂时用模拟功能
+}
+
+function closeWechatModal() {
+    wechatModal.style.display = 'none';
+    authModal.style.display = 'flex';
+}
+
+function simulateWechatLogin() {
+    // 模拟微信登录成功
+    const userData = {
+        id: 'wx_' + Date.now(),
+        type: 'wechat',
+        nickname: '微信用户_' + Math.floor(Math.random() * 1000),
+        avatar: 'https://api.multiavatar.com/' + Date.now() + '.svg',
+        unionid: 'mock_unionid_' + Date.now(),
+        subscription: 'free',
+        settings: USER_CONFIG.defaultSettings,
+        created: new Date().toISOString(),
+        lastLogin: new Date().toISOString()
+    };
+    
+    loginSuccess(userData, '微信');
+}
+
+// 显示手机登录表单
+function showPhoneLogin() {
+    document.getElementById('phone-login-form').style.display = 'block';
+    document.getElementById('email-login-form').style.display = 'none';
+    
+    // 绑定获取验证码事件
+    document.getElementById('send-code-btn').onclick = sendVerifyCode;
+}
+
+// 发送验证码
+function sendVerifyCode() {
+    const phone = document.getElementById('phone-number').value;
+    if (!phone || !/^1[3-9]\d{9}$/.test(phone)) {
+        alert('请输入正确的手机号');
+        return;
+    }
+    
+    const btn = document.getElementById('send-code-btn');
+    btn.disabled = true;
+    btn.innerHTML = '60秒后重试';
+    
+    // 模拟发送验证码
+    let count = 60;
+    const timer = setInterval(() => {
+        count--;
+        if (count <= 0) {
+            clearInterval(timer);
+            btn.disabled = false;
+            btn.innerHTML = '获取验证码';
+        } else {
+            btn.innerHTML = count + '秒后重试';
+        }
+    }, 1000);
+    
+    // 这里应该调用后端API发送真实验证码
+    console.log('发送验证码到:', phone);
+    // 模拟验证码：123456
+    localStorage.setItem('verify_code_' + phone, '123456');
+    
+    alert('验证码已发送（模拟：123456）');
+}
+
+// 手机号登录
+function phoneLogin() {
+    const phone = document.getElementById('phone-number').value;
+    const code = document.getElementById('verify-code').value;
+    
+    if (!phone || !/^1[3-9]\d{9}$/.test(phone)) {
+        alert('请输入正确的手机号');
+        return;
+    }
+    
+    if (!code || code.length !== 6) {
+        alert('请输入6位验证码');
+        return;
+    }
+    
+    // 验证验证码（模拟）
+    const savedCode = localStorage.getItem('verify_code_' + phone);
+    if (code !== savedCode && code !== '123456') {
+        alert('验证码错误');
+        return;
+    }
+    
+    // 登录成功
+    const userData = {
+        id: 'phone_' + phone,
+        type: 'phone',
+        phone: phone,
+        nickname: '用户_' + phone.slice(-4),
+        avatar: getRandomAvatar(),
+        subscription: 'free',
+        settings: USER_CONFIG.defaultSettings,
+        created: new Date().toISOString(),
+        lastLogin: new Date().toISOString()
+    };
+    
+    loginSuccess(userData, '手机');
+}
+
+// 显示邮箱登录表单
+function showEmailLogin() {
+    document.getElementById('email-login-form').style.display = 'block';
+    document.getElementById('phone-login-form').style.display = 'none';
+}
+
+// 邮箱登录
+function emailLogin() {
+    const email = document.getElementById('email-input').value;
+    const password = document.getElementById('password-input').value;
+    
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+        alert('请输入正确的邮箱地址');
+        return;
+    }
+    
+    if (!password || password.length < 6) {
+        alert('密码至少6位');
+        return;
+    }
+    
+    // 模拟登录验证
+    const savedUser = localStorage.getItem('email_user_' + email);
+    if (savedUser) {
+        const user = JSON.parse(savedUser);
+        if (user.password === password) {
+            loginSuccess(user, '邮箱');
+            return;
+        } else {
+            alert('密码错误');
+            return;
+        }
+    }
+    
+    alert('邮箱未注册，请先注册');
+}
+
+// 邮箱注册
+function emailSignup() {
+    const email = document.getElementById('email-input').value;
+    const password = document.getElementById('password-input').value;
+    
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+        alert('请输入正确的邮箱地址');
+        return;
+    }
+    
+    if (!password || password.length < 6) {
+        alert('密码至少6位');
+        return;
+    }
+    
+    // 检查是否已注册
+    if (localStorage.getItem('email_user_' + email)) {
+        alert('该邮箱已注册，请直接登录');
+        return;
+    }
+    
+    // 创建新用户
+    const userData = {
+        id: 'email_' + Date.now(),
+        type: 'email',
+        email: email,
+        password: password, // 实际应该加密存储
+        nickname: email.split('@')[0],
+        avatar: getRandomAvatar(),
+        subscription: 'free',
+        settings: USER_CONFIG.defaultSettings,
+        created: new Date().toISOString(),
+        lastLogin: new Date().toISOString()
+    };
+    
+    // 保存用户数据
+    localStorage.setItem('email_user_' + email, JSON.stringify(userData));
+    
+    loginSuccess(userData, '邮箱');
+}
+
+// QQ登录（模拟）
+function qqLogin() {
+    // 模拟QQ登录
+    const userData = {
+        id: 'qq_' + Date.now(),
+        type: 'qq',
+        nickname: 'QQ用户_' + Math.floor(Math.random() * 1000),
+        avatar: 'https://api.multiavatar.com/' + Date.now() + '.svg',
+        openid: 'mock_openid_' + Date.now(),
+        subscription: 'free',
+        settings: USER_CONFIG.defaultSettings,
+        created: new Date().toISOString(),
+        lastLogin: new Date().toISOString()
+    };
+    
+    loginSuccess(userData, 'QQ');
+}
+
+// 登录成功处理
+function loginSuccess(userData, loginMethod) {
+    // 更新当前用户
+    currentUser = userData;
+    
+    // 保存到本地存储
+    localStorage.setItem('consensusai_user_v2', JSON.stringify(userData));
+    
+    // 关闭所有模态框
+    authModal.style.display = 'none';
+    wechatModal.style.display = 'none';
+    
+    // 更新UI
+    updateUIForLoggedInUser();
+    
+    // 显示欢迎消息
+    showNotification(`欢迎回来，${userData.nickname}！登录方式：${loginMethod}`);
+    
+    // 更新会话中的用户信息
+    updateSessionWithRealUser();
+}
+
+// ================= UI更新 =================
+
+// 更新登录后的UI
+function updateUIForLoggedInUser() {
+    if (!currentUser) return;
+    
+    // 创建用户信息组件
+    const userInfoHTML = `
+        <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="showUserMenu()">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: ${getUserColor(currentUser.id)}; 
+                        display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;">
+                ${currentUser.nickname.charAt(0).toUpperCase()}
+            </div>
+            <div>
+                <div style="font-weight: 600; font-size: 14px;">${currentUser.nickname}</div>
+                <div style="font-size: 12px; color: #666; display: flex; align-items: center; gap: 4px;">
+                    <span>${USER_CONFIG.userTypes[currentUser.subscription].name}</span>
+                    <span style="font-size: 10px; background: #f0f2f5; padding: 2px 6px; border-radius: 10px;">
+                        ${getLoginTypeIcon(currentUser.type)}
+                    </span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // 添加到导航栏
+    const navbarRight = document.querySelector('.navbar > div:last-child');
+    navbarRight.innerHTML = userInfoHTML + navbarRight.innerHTML;
+    
+    // 更新页面标题
+    document.title = `ConsensusAI - ${currentUser.nickname}`;
+}
+
+// 更新会话中的用户
+function updateSessionWithRealUser() {
+    if (!currentUser || !currentSession) return;
+    
+    // 替换模拟用户
+    const existingUser = currentSession.users.find(u => u.id === currentUser.id);
+    if (!existingUser) {
+        currentSession.users.push({
+            id: currentUser.id,
+            name: currentUser.nickname,
+            role: '咨询者',
+            color: getUserColor(currentUser.id)
+        });
+    }
+    
+    // 重新渲染
+    renderUserList();
+}
+
+// ================= 辅助函数 =================
+
+// 获取登录类型图标
+function getLoginTypeIcon(type) {
+    const icons = {
+        wechat: '💚',
+        phone: '📱',
+        qq: '🐧',
+        email: '📧'
+    };
+    return icons[type] || '👤';
+}
+
+// 获取用户颜色
+function getUserColor(userId) {
+    const colors = ['#3498db', '#2ecc71', '#9b59b6', '#1abc9c', '#e74c3c', '#f39c12', '#34495e', '#16a085'];
+    const index = userId.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0) % colors.length;
+    return colors[index];
+}
+
+// 随机头像
+function getRandomAvatar() {
+    const avatars = [
+        'https://api.multiavatar.com/1.svg',
+        'https://api.multiavatar.com/2.svg',
+        'https://api.multiavatar.com/3.svg',
+        'https://api.multiavatar.com/4.svg',
+        'https://api.multiavatar.com/5.svg'
+    ];
+    return avatars[Math.floor(Math.random() * avatars.length)];
+}
+
+// 隐藏所有表单
+function hideForms() {
+    document.getElementById('phone-login-form').style.display = 'none';
+    document.getElementById('email-login-form').style.display = 'none';
+}
+
+// 显示通知
+function showNotification(message) {
+    // 创建通知元素
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        z-index: 3000;
+        animation: slideIn 0.3s ease;
+        border-left: 4px solid #6a11cb;
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // 3秒后自动移除
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// 用户菜单
+function showUserMenu() {
+    const menuHTML = `
+        <div id="user-menu" style="position: absolute; top: 60px; right: 20px; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1001; width: 200px; padding: 15px 0; border: 1px solid #eee;">
+            <div style="padding: 0 20px 15px; border-bottom: 1px solid #eee;">
+                <div style="font-weight: 600; font-size: 15px;">${currentUser.nickname}</div>
+                <div style="font-size: 12px; color: #666; margin-top: 5px;">${currentUser.email || currentUser.phone || '社交用户'}</div>
+            </div>
+            <div style="padding: 10px 0;">
+                <div class="menu-item" onclick="goToProfile()">👤 个人资料</div>
+                <div class="menu-item" onclick="goToSettings()">⚙️ 账户设置</div>
+                <div class="menu-item" onclick="goToSubscription()">💎 升级会员</div>
+                <div class="menu-item" onclick="showHelp()">❓ 帮助中心</div>
+            </div>
+            <div style="padding: 15px 20px 0; border-top: 1px solid #eee;">
+                <div class="menu-item" onclick="logout()" style="color: #e74c3c;">🚪 退出登录</div>
+            </div>
+        </div>
+    `;
+    
+    // 移除现有菜单
+    const existingMenu = document.getElementById('user-menu');
+    if (existingMenu) existingMenu.remove();
+    
+    // 添加新菜单
+    document.body.insertAdjacentHTML('beforeend', menuHTML);
+    
+    // 点击其他地方关闭菜单
+    setTimeout(() => {
+        document.addEventListener('click', function closeMenu(e) {
+            const menu = document.getElementById('user-menu');
+            if (menu && !menu.contains(e.target) && !e.target.closest('.navbar > div:last-child > div')) {
+                menu.remove();
+                document.removeEventListener('click', closeMenu);
+            }
+        });
+    }, 100);
+}
+
+// 用户菜单项功能
+function goToProfile() {
+    alert('个人资料功能开发中...');
+}
+
+function goToSettings() {
+    alert('账户设置功能开发中...');
+}
+
+function goToSubscription() {
+    alert('会员升级功能开发中...');
+}
+
+function showHelp() {
+    alert('帮助中心功能开发中...');
+}
+
+// 退出登录
+function logout() {
+    if (confirm('确定要退出登录吗？')) {
+        localStorage.removeItem('consensusai_user_v2');
+        currentUser = null;
+        location.reload();
+    }
+}
+
+// 设置事件监听
+function setupAuthListeners() {
+    // 关闭登录模态框
+    document.getElementById('close-auth').addEventListener('click', function() {
+        authModal.style.display = 'none';
+    });
+    
+    // ESC键关闭模态框
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            authModal.style.display = 'none';
+            wechatModal.style.display = 'none';
+        }
+    });
+}
+
+// 添加CSS动画
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+    .menu-item {
+        padding: 12px 20px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s;
+    }
+    .menu-item:hover {
+        background: #f8f9fa;
+    }
+`;
+document.head.appendChild(style);
+</script>
 </body>
 </html>
+
