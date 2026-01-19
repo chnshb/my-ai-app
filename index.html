@@ -1415,4 +1415,641 @@ document.head.appendChild(style);
 </script>
 </body>
 </html>
+<!-- 在现有代码的<script>标签末尾添加以下代码 -->
+
+<!-- WebSocket连接管理 -->
+<script>
+// ================= 实时通信配置 =================
+const WS_CONFIG = {
+    // 开发阶段用本地模拟，生产环境换成阿里云
+    serverUrl: 'wss://your-aliyun-websocket-endpoint',
+    reconnectInterval: 3000,
+    maxReconnectAttempts: 5,
+    pingInterval: 30000
+};
+
+// ================= WebSocket管理器 =================
+class WebSocketManager {
+    constructor() {
+        this.ws = null;
+        this.reconnectAttempts = 0;
+        this.messageHandlers = new Map();
+        this.pendingMessages = [];
+        this.isConnected = false;
+    }
+    
+    // 连接到服务器
+    connect() {
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+            return;
+        }
+        
+        try {
+            // 开发阶段使用模拟模式
+            if (window.location.hostname === 'localhost' || 
+                window.location.hostname.includes('github.io')) {
+                console.log('使用模拟WebSocket连接');
+                this.setupMockWebSocket();
+                return;
+            }
+            
+            // 生产环境连接真实WebSocket
+            this.ws = new WebSocket(WS_CONFIG.serverUrl);
+            this.setupEventListeners();
+            
+        } catch (error) {
+            console.error('WebSocket连接失败:', error);
+            this.scheduleReconnect();
+        }
+    }
+    
+    // 设置事件监听
+    setupEventListeners() {
+        if (!this.ws) return;
+        
+        this.ws.onopen = () => {
+            console.log('WebSocket连接成功');
+            this.isConnected = true;
+            this.reconnectAttempts = 0;
+            this.updateConnectionStatus(true);
+            
+            // 发送待处理消息
+            this.sendPendingMessages();
+            
+            // 开始心跳检测
+            this.startHeartbeat();
+        };
+        
+        this.ws.onmessage = (event) => {
+            try {
+                const message = JSON.parse(event.data);
+                this.handleMessage(message);
+            } catch (error) {
+                console.error('消息解析失败:', error);
+            }
+        };
+        
+        this.ws.onclose = () => {
+            console.log('WebSocket连接关闭');
+            this.isConnected = false;
+            this.updateConnectionStatus(false);
+            this.scheduleReconnect();
+        };
+        
+        this.ws.onerror = (error) => {
+            console.error('WebSocket错误:', error);
+            this.isConnected = false;
+            this.updateConnectionStatus(false);
+        };
+    }
+    
+    // 模拟WebSocket（开发阶段）
+    setupMockWebSocket() {
+        this.isConnected = true;
+        this.updateConnectionStatus(true);
+        
+        // 模拟收到其他用户消息
+        setInterval(() => {
+            if (Math.random() > 0.7 && currentSession && currentSession.users.length > 1) {
+                this.handleMockMessage();
+            }
+        }, 5000);
+    }
+    
+    // 处理模拟消息
+    handleMockMessage() {
+        const mockUsers = [
+            { id: 'mock-user-1', name: '李四', role: '伴侣' },
+            { id: 'mock-user-2', name: '王五', role: '朋友' },
+            { id: 'mock-user-3', name: '赵六', role: '家人' }
+        ];
+        
+        const mockUser = mockUsers[Math.floor(Math.random() * mockUsers.length)];
+        const mockMessages = [
+            '我也有类似的感受，我们都需要更多理解',
+            '我觉得我们可以从另一个角度看待这个问题',
+            '我同意AI的建议，我们应该先明确各自的需求',
+            '或许我们可以尝试轮流表达自己的想法',
+            '我感受到了一些进展，谢谢大家的沟通'
+        ];
+        
+        const mockMessage = {
+            type: 'chat_message',
+            data: {
+                id: 'mock-' + Date.now(),
+                sessionId: currentSession?.id || 'default',
+                userId: mockUser.id,
+                userName: mockUser.name,
+                userRole: mockUser.role,
+                content: mockMessages[Math.floor(Math.random() * mockMessages.length)],
+                timestamp: new Date().toISOString(),
+                type: 'user'
+            }
+        };
+        
+        this.handleMessage(mockMessage);
+    }
+    
+    // 发送消息
+    sendMessage(type, data) {
+        const message = {
+            type: type,
+            data: data,
+            timestamp: new Date().toISOString(),
+            userId: currentUser?.id,
+            sessionId: currentSession?.id
+        };
+        
+        if (this.isConnected && this.ws?.readyState === WebSocket.OPEN) {
+            this.ws.send(JSON.stringify(message));
+            return true;
+        } else {
+            // 保存到待发送队列
+            this.pendingMessages.push(message);
+            console.log('消息已保存到待发送队列');
+            return false;
+        }
+    }
+    
+    // 发送待处理消息
+    sendPendingMessages() {
+        while (this.pendingMessages.length > 0) {
+            const message = this.pendingMessages.shift();
+            this.ws.send(JSON.stringify(message));
+        }
+    }
+    
+    // 处理收到的消息
+    handleMessage(message) {
+        const { type, data } = message;
+        
+        switch (type) {
+            case 'chat_message':
+                this.handleChatMessage(data);
+                break;
+                
+            case 'user_joined':
+                this.handleUserJoined(data);
+                break;
+                
+            case 'user_left':
+                this.handleUserLeft(data);
+                break;
+                
+            case 'session_updated':
+                this.handleSessionUpdated(data);
+                break;
+                
+            case 'consensus_updated':
+                this.handleConsensusUpdated(data);
+                break;
+                
+            case 'ping':
+                this.handlePing();
+                break;
+        }
+        
+        // 触发自定义处理程序
+        if (this.messageHandlers.has(type)) {
+            this.messageHandlers.get(type).forEach(handler => handler(data));
+        }
+    }
+    
+    // 处理聊天消息
+    handleChatMessage(data) {
+        // 确保不是自己发送的消息
+        if (data.userId === currentUser?.id) return;
+        
+        // 添加到聊天历史
+        const newMessage = {
+            id: data.id,
+            userId: data.userId,
+            userName: data.userName,
+            userRole: data.userRole,
+            content: data.content,
+            timestamp: new Date(data.timestamp),
+            type: 'user'
+        };
+        
+        chatHistory.push(newMessage);
+        
+        // 渲染消息
+        renderMessages();
+        
+        // 显示新消息通知
+        this.showNewMessageNotification(data.userName, data.content);
+    }
+    
+    // 用户加入会话
+    handleUserJoined(data) {
+        if (!currentSession) return;
+        
+        // 添加新用户到会话
+        const newUser = {
+            id: data.userId,
+            name: data.userName,
+            role: data.userRole || '参与者',
+            color: this.getUserColor(data.userId)
+        };
+        
+        if (!currentSession.users.some(u => u.id === data.userId)) {
+            currentSession.users.push(newUser);
+            renderUserList();
+            
+            // 显示加入通知
+            this.showSystemNotification(`${data.userName} 加入了会话`);
+        }
+    }
+    
+    // 用户离开会话
+    handleUserLeft(data) {
+        if (!currentSession) return;
+        
+        const index = currentSession.users.findIndex(u => u.id === data.userId);
+        if (index !== -1) {
+            const userName = currentSession.users[index].name;
+            currentSession.users.splice(index, 1);
+            renderUserList();
+            
+            // 显示离开通知
+            this.showSystemNotification(`${userName} 离开了会话`);
+        }
+    }
+    
+    // 会话更新
+    handleSessionUpdated(data) {
+        if (currentSession && currentSession.id === data.sessionId) {
+            Object.assign(currentSession, data.updates);
+            renderSession();
+        }
+    }
+    
+    // 共识进度更新
+    handleConsensusUpdated(data) {
+        if (currentSession && currentSession.id === data.sessionId) {
+            updateConsensusProgress(data.consensus);
+        }
+    }
+    
+    // 心跳处理
+    handlePing() {
+        this.sendMessage('pong', { timestamp: Date.now() });
+    }
+    
+    // 开始心跳检测
+    startHeartbeat() {
+        if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
+        
+        this.heartbeatInterval = setInterval(() => {
+            if (this.isConnected) {
+                this.sendMessage('ping', { timestamp: Date.now() });
+            }
+        }, WS_CONFIG.pingInterval);
+    }
+    
+    // 显示新消息通知
+    showNewMessageNotification(userName, content) {
+        if (document.hidden) {
+            // 浏览器在后台，显示桌面通知
+            if (Notification.permission === 'granted') {
+                new Notification(`新消息来自 ${userName}`, {
+                    body: content.length > 50 ? content.substring(0, 50) + '...' : content,
+                    icon: 'https://chnshb.github.io/my-ai-app/favicon.ico'
+                });
+            }
+        }
+        
+        // 显示应用内通知
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-width: 300px;
+            border-left: 4px solid #3498db;
+            animation: slideInRight 0.3s ease;
+        `;
+        
+        notification.innerHTML = `
+            <div style="font-weight: 600; color: #2c3e50; margin-bottom: 5px;">${userName}</div>
+            <div style="font-size: 14px; color: #555;">${content}</div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // 3秒后移除
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+    
+    // 显示系统通知
+    showSystemNotification(message) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: #f8f9fa;
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            border-left: 4px solid #1abc9c;
+            animation: slideInRight 0.3s ease;
+            font-size: 14px;
+            color: #2c3e50;
+        `;
+        
+        notification.textContent = `📢 ${message}`;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 2000);
+    }
+    
+    // 更新连接状态显示
+    updateConnectionStatus(connected) {
+        const statusElement = document.getElementById('connection-status') || 
+                             this.createConnectionStatusElement();
+        
+        if (connected) {
+            statusElement.innerHTML = `
+                <span style="color: #2ecc71;">●</span> 实时连接正常
+            `;
+        } else {
+            statusElement.innerHTML = `
+                <span style="color: #e74c3c;">●</span> 连接断开，正在重连...
+            `;
+        }
+    }
+    
+    // 创建连接状态元素
+    createConnectionStatusElement() {
+        const statusElement = document.createElement('div');
+        statusElement.id = 'connection-status';
+        statusElement.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            font-size: 12px;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        `;
+        
+        document.body.appendChild(statusElement);
+        return statusElement;
+    }
+    
+    // 获取用户颜色
+    getUserColor(userId) {
+        const colors = ['#3498db', '#2ecc71', '#9b59b6', '#1abc9c', '#e74c3c', '#f39c12', '#34495e', '#16a085'];
+        const index = userId.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0) % colors.length;
+        return colors[index];
+    }
+    
+    // 重连调度
+    scheduleReconnect() {
+        if (this.reconnectAttempts >= WS_CONFIG.maxReconnectAttempts) {
+            console.log('达到最大重连次数，停止重连');
+            return;
+        }
+        
+        this.reconnectAttempts++;
+        
+        setTimeout(() => {
+            console.log(`第 ${this.reconnectAttempts} 次尝试重连...`);
+            this.connect();
+        }, WS_CONFIG.reconnectInterval);
+    }
+    
+    // 注册消息处理器
+    on(type, handler) {
+        if (!this.messageHandlers.has(type)) {
+            this.messageHandlers.set(type, []);
+        }
+        this.messageHandlers.get(type).push(handler);
+    }
+    
+    // 断开连接
+    disconnect() {
+        if (this.ws) {
+            this.ws.close();
+        }
+        if (this.heartbeatInterval) {
+            clearInterval(this.heartbeatInterval);
+        }
+        this.isConnected = false;
+    }
+}
+
+// ================= 全局WebSocket实例 =================
+const wsManager = new WebSocketManager();
+
+// ================= 修改现有函数 =================
+
+// 修改sendMessage函数，添加WebSocket发送
+const originalSendMessage = window.sendMessage;
+window.sendMessage = function() {
+    const input = document.getElementById('message-input');
+    const content = input.value.trim();
+    
+    if (!content) return;
+    
+    // 创建消息对象
+    const messageData = {
+        id: 'msg-' + Date.now(),
+        sessionId: currentSession?.id,
+        userId: currentUser?.id,
+        userName: currentUser?.nickname || '用户',
+        userRole: '咨询者',
+        content: content,
+        timestamp: new Date().toISOString(),
+        type: 'user'
+    };
+    
+    // 发送到WebSocket服务器
+    const sent = wsManager.sendMessage('chat_message', messageData);
+    
+    if (sent) {
+        // 如果发送成功，立即添加到本地历史
+        chatHistory.push({
+            ...messageData,
+            timestamp: new Date(messageData.timestamp)
+        });
+        
+        // 渲染消息
+        renderMessages();
+        
+        // 清空输入框
+        input.value = '';
+        adjustInputHeight();
+    } else {
+        // 如果发送失败，使用原来的方式
+        originalSendMessage();
+    }
+};
+
+// ================= 初始化 =================
+
+// 在用户登录成功后连接WebSocket
+function connectWebSocketAfterLogin() {
+    // 等待DOM加载完成
+    setTimeout(() => {
+        wsManager.connect();
+        
+        // 请求通知权限
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    }, 1000);
+}
+
+// 修改登录成功函数，添加WebSocket连接
+const originalLoginSuccess = window.loginSuccess;
+window.loginSuccess = function(userData, loginMethod) {
+    originalLoginSuccess(userData, loginMethod);
+    connectWebSocketAfterLogin();
+};
+
+// 添加CSS动画
+const wsStyles = document.createElement('style');
+wsStyles.textContent = `
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(wsStyles);
+
+// ================= 会话邀请功能 =================
+
+// 增强邀请成员功能
+const originalInviteUsers = window.inviteUsers;
+window.inviteUsers = function() {
+    if (!currentUser) {
+        alert('请先登录');
+        return;
+    }
+    
+    // 创建邀请模态框
+    const modalHTML = `
+        <div id="invite-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2002; display: flex; justify-content: center; align-items: center;">
+            <div style="background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px;">
+                <h3 style="margin-bottom: 20px; color: #2c3e50;">邀请成员加入会话</h3>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">邀请链接</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="invite-link" readonly value="${generateInviteLink()}" style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: #f8f9fa;">
+                        <button onclick="copyInviteLink()" style="padding: 12px 20px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer;">复制链接</button>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">通过邮箱邀请</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="email" id="invite-email" placeholder="输入邮箱地址" style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                        <button onclick="sendEmailInvite()" style="padding: 12px 20px; background: #2ecc71; color: white; border: none; border-radius: 8px; cursor: pointer;">发送邀请</button>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button onclick="closeInviteModal()" style="padding: 12px 25px; background: #f8f9fa; color: #666; border: 1px solid #ddd; border-radius: 8px; cursor: pointer;">关闭</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+};
+
+function generateInviteLink() {
+    const sessionId = currentSession?.id || 'new-session';
+    const userId = currentUser?.id || 'anonymous';
+    return `${window.location.origin}${window.location.pathname}?session=${sessionId}&inviter=${userId}`;
+}
+
+function copyInviteLink() {
+    const linkInput = document.getElementById('invite-link');
+    linkInput.select();
+    document.execCommand('copy');
+    alert('邀请链接已复制到剪贴板！');
+}
+
+function sendEmailInvite() {
+    const email = document.getElementById('invite-email').value;
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+        alert('请输入有效的邮箱地址');
+        return;
+    }
+    
+    // 模拟发送邀请邮件
+    alert(`邀请邮件已发送到 ${email}（模拟）`);
+}
+
+function closeInviteModal() {
+    const modal = document.getElementById('invite-modal');
+    if (modal) modal.remove();
+}
+
+// ================= 页面加载时连接WebSocket =================
+document.addEventListener('DOMContentLoaded', function() {
+    // 延迟连接，等用户可能登录
+    setTimeout(() => {
+        if (currentUser) {
+            wsManager.connect();
+        }
+    }, 2000);
+    
+    // 检查URL中的邀请参数
+    checkInviteParams();
+});
+
+// 检查邀请参数
+function checkInviteParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session');
+    const inviterId = urlParams.get('inviter');
+    
+    if (sessionId && inviterId) {
+        // 显示加入会话确认
+        setTimeout(() => {
+            if (confirm('您收到一个会话邀请，是否加入？')) {
+                joinInvitedSession(sessionId, inviterId);
+            }
+        }, 1000);
+    }
+}
+
+function joinInvitedSession(sessionId, inviterId) {
+    // 模拟加入会话
+    alert(`正在加入会话 ${sessionId}...（模拟功能）`);
+    
+    // 这里应该通过WebSocket加入真实会话
+    wsManager.sendMessage('join_session', {
+        sessionId: sessionId,
+        userId: currentUser?.id,
+        userName: currentUser?.nickname
+    });
+}
+</script>
 
