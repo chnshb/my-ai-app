@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>我的AI助手</title>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: auto; padding: 20px; }
+        #chat { border: 1px solid #ccc; height: 400px; overflow-y: scroll; padding: 10px; }
+        .message { margin: 10px 0; }
+        .user { text-align: right; color: blue; }
+        .ai { text-align: left; color: green; }
+    </style>
+</head>
+<body>
+    <h1>我的AI助手</h1>
+    <div id="chat"></div>
+    <input type="text" id="input" placeholder="输入你的问题..." style="width: 80%;">
+    <button onclick="sendMessage()">发送</button>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('input');
+            const message = input.value;
+            
+            // 显示用户消息
+            displayMessage(message, 'user');
+            
+            // 调用AI接口（先用模拟数据）
+            const response = await getAIResponse(message);
+            
+            // 显示AI回复
+            displayMessage(response, 'ai');
+            
+            input.value = '';
+        }
+
+        function displayMessage(text, sender) {
+            const chat = document.getElementById('chat');
+            const div = document.createElement('div');
+            div.className = `message ${sender}`;
+            div.textContent = `${sender === 'user' ? '你' : 'AI'}: ${text}`;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        async function getAIResponse(message) {
+            // 后期换成真实的AI API
+            // 现在先用模拟回复
+            return `这是AI的回复（测试版）：${message}`;
+        }
+    </script>
+</body>
+</html>
