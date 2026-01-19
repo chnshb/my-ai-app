@@ -3,1139 +3,754 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能AI助手 - 国内可用版</title>
+    <title>ConsensusAI - 共识导向型心理咨询平台</title>
     <style>
+        /* 专业商务风格 */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #1abc9c;
+            --danger-color: #e74c3c;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --border-color: #dee2e6;
+            --success-color: #27ae60;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
-            padding: 20px;
             color: #333;
         }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            height: calc(100vh - 40px);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
-            padding: 25px 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-
-        .model-selector {
-            background: rgba(255, 255, 255, 0.15);
+        
+        /* 专业头部 */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
             padding: 15px 30px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            gap: 15px;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
-
-        .model-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            flex: 1;
-        }
-
-        .model-btn {
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            color: white;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .model-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .model-btn.active {
-            background: white;
-            color: #6a11cb;
-            font-weight: bold;
-        }
-
-        .api-status {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
-        .chat-container {
-            flex: 1;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #chat {
-            flex: 1;
-            overflow-y: auto;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            background: #f8f9fa;
-        }
-
-        .message {
-            max-width: 85%;
-            padding: 18px 20px;
-            border-radius: 18px;
-            line-height: 1.6;
-            position: relative;
-            animation: fadeIn 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .user-message {
-            align-self: flex-end;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-
-        .ai-message {
-            align-self: flex-start;
-            background: white;
-            color: #333;
-            border: 1px solid #e9ecef;
-            border-bottom-left-radius: 5px;
-        }
-
-        .message-header {
+        
+        .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            font-size: 14px;
-            font-weight: 500;
+            gap: 12px;
+            color: var(--primary-color);
+            font-size: 24px;
+            font-weight: 700;
         }
-
-        .user-message .message-header {
-            justify-content: flex-end;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .ai-message .message-header {
-            color: #6a11cb;
-        }
-
-        .avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
+        
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
             font-weight: bold;
         }
-
-        .user-avatar {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+        
+        /* 主容器 */
+        .app-container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            gap: 25px;
+            height: calc(100vh - 100px);
         }
-
-        .ai-avatar {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
-        }
-
-        .message-content {
-            font-size: 15px;
-            line-height: 1.7;
-        }
-
-        .message-content pre {
-            background: #f5f5f5;
-            padding: 10px;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 10px 0;
-            font-family: 'Consolas', monospace;
-        }
-
-        .message-content code {
-            background: #f5f5f5;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Consolas', monospace;
-            font-size: 14px;
-        }
-
-        .input-container {
+        
+        /* 左侧面板 - 会话管理 */
+        .sidebar {
+            background: white;
+            border-radius: 15px;
             padding: 25px;
-            border-top: 1px solid #e9ecef;
-            background: white;
-        }
-
-        .input-area {
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
             display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
+            flex-direction: column;
         }
-
-        #input {
-            flex: 1;
-            padding: 18px 20px;
-            border: 2px solid #e1e5e9;
-            border-radius: 15px;
-            font-size: 16px;
-            transition: all 0.3s;
-            background: #f8f9fa;
-            resize: none;
-            min-height: 60px;
-            max-height: 120px;
-            font-family: inherit;
-        }
-
-        #input:focus {
-            outline: none;
-            border-color: #6a11cb;
+        
+        /* 中间 - 多人聊天室 */
+        .chat-room {
             background: white;
-            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.1);
-        }
-
-        #send-btn {
-            padding: 0 30px;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            border: none;
             border-radius: 15px;
-            color: white;
-            font-size: 16px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* 右侧 - 用户面板和工具 */
+        .right-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        }
+        
+        /* 专业按钮 */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-width: 120px;
-        }
-
-        #send-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(106, 17, 203, 0.2);
-        }
-
-        #send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            padding: 10px 20px;
-            background: #f8f9fa;
-            border: 1px solid #e1e5e9;
-            border-radius: 10px;
-            color: #555;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .action-btn:hover {
-            background: #e9ecef;
-            transform: translateY(-1px);
-        }
-
-        .settings-btn {
-            padding: 10px 20px;
-            background: #6a11cb;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-
-        .loading {
-            display: none;
-            padding: 20px;
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-        }
-
-        .loading.active {
-            display: block;
-        }
-
-        .typing-indicator {
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            background: #6a11cb;
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        }
+        
+        /* 用户头像 */
+        .user-avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            animation: typing 1.4s infinite ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
         }
-
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-
-        @keyframes typing {
-            0%, 80%, 100% { transform: scale(0.6); opacity: 0.6; }
-            40% { transform: scale(1); opacity: 1; }
+        
+        /* 消息样式 */
+        .message {
+            max-width: 70%;
+            margin: 15px;
+            padding: 18px;
+            border-radius: 12px;
+            position: relative;
+            animation: slideIn 0.3s ease;
         }
-
-        .footer {
-            text-align: center;
+        
+        .user-message {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .ai-message {
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            border-bottom-left-radius: 4px;
+        }
+        
+        /* 共识进度条 */
+        .consensus-progress {
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), var(--secondary-color));
+            transition: width 0.5s ease;
+        }
+        
+        /* 免责声明 */
+        .disclaimer {
+            background: #fff8e1;
+            border-left: 4px solid #ffc107;
             padding: 15px;
-            font-size: 12px;
-            color: #666;
-            background: #f8f9fa;
-            border-top: 1px solid #e9ecef;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+            color: #856404;
         }
-
-        /* 滚动条样式 */
-        #chat::-webkit-scrollbar {
-            width: 8px;
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-
-        #chat::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .app-container {
+                grid-template-columns: 250px 1fr;
+            }
+            .right-panel {
+                display: none;
+            }
         }
-
-        #chat::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 4px;
-        }
-
-        #chat::-webkit-scrollbar-thumb:hover {
-            background: #a1a1a1;
-        }
-
-        /* 移动端适配 */
+        
         @media (max-width: 768px) {
-            body {
+            .app-container {
+                grid-template-columns: 1fr;
                 padding: 10px;
             }
-            
-            .container {
-                height: calc(100vh - 20px);
-                border-radius: 15px;
+            .sidebar {
+                display: none;
             }
-            
-            .header {
-                padding: 20px 15px;
-            }
-            
-            .header h1 {
-                font-size: 22px;
-            }
-            
-            .model-selector {
-                padding: 10px 15px;
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .model-buttons {
-                justify-content: center;
-            }
-            
-            #chat {
-                padding: 15px;
-            }
-            
-            .message {
-                max-width: 95%;
-                padding: 15px;
-            }
-            
-            .input-container {
-                padding: 15px;
-            }
-            
-            .input-area {
-                flex-direction: column;
-            }
-            
-            #send-btn {
-                width: 100%;
-                padding: 15px;
-            }
-            
-            .controls {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .action-buttons {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-
-        /* 设置面板 */
-        .settings-panel {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            width: 90%;
-            max-width: 500px;
-        }
-
-        .settings-panel.active {
-            display: block;
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        .overlay.active {
-            display: block;
-        }
-
-        .api-input-group {
-            margin-bottom: 20px;
-        }
-
-        .api-input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .api-input-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #666;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>
-                <span>🤖</span>
-                智能AI助手 - 国内专版
-            </h1>
-            <p>支持多种国产大模型，国内网络可直接使用</p>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="logo">
+            <div class="logo-icon">C</div>
+            <span>ConsensusAI</span>
         </div>
-
-        <div class="model-selector">
-            <div class="model-buttons">
-                <button class="model-btn active" data-model="deepseek">DeepSeek</button>
-                <button class="model-btn" data-model="qwen">通义千问</button>
-                <button class="model-btn" data-model="glm">智谱GLM</button>
-                <button class="model-btn" data-model="spark">讯飞星火</button>
-                <button class="model-btn" data-model="ernie">文心一言</button>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div style="font-size: 14px; color: #666;">
+                <span>专业版</span>
+                <span style="margin: 0 10px">|</span>
+                <span id="online-count">在线: 2人</span>
             </div>
-            <div class="api-status" id="api-status">DeepSeek API 已配置</div>
+            <button class="btn btn-primary" onclick="showNewSessionModal()">
+                <span>+</span> 新建会话
+            </button>
         </div>
-
-        <div class="chat-container">
-            <div id="chat">
-                <div class="message ai-message">
-                    <div class="message-header">
-                        <div class="avatar ai-avatar">AI</div>
-                        <span>AI助手</span>
-                    </div>
-                    <div class="message-content">
-                        你好！我是你的智能AI助手，专为国内用户优化。支持DeepSeek、通义千问、智谱GLM等多种国产大模型，国内网络可直接使用。
-                        <br><br>
-                        <strong>使用方法：</strong>
-                        <ol>
-                            <li>点击上方按钮选择AI模型</li>
-                            <li>在下方输入框提问</li>
-                            <li>按Enter发送，Shift+Enter换行</li>
-                        </ol>
-                        请开始我们的对话吧！
-                    </div>
-                </div>
+    </nav>
+    
+    <!-- 主应用容器 -->
+    <div class="app-container">
+        <!-- 左侧：会话列表 -->
+        <div class="sidebar">
+            <h3 style="margin-bottom: 20px; color: var(--primary-color);">会话列表</h3>
+            <div id="session-list">
+                <!-- 动态加载会话 -->
             </div>
-
-            <div class="loading" id="loading">
-                <div class="typing-indicator">
-                    <span>AI正在思考</span>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="input-container">
-            <div class="input-area">
-                <textarea 
-                    id="input" 
-                    placeholder="请输入您的问题...（按Shift+Enter换行，Enter发送）"
-                    rows="1"
-                ></textarea>
-                <button id="send-btn" onclick="sendMessage()">
-                    <span>发送</span>
-                    <span>↗</span>
+            <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                <button class="btn" onclick="inviteUsers()" style="width: 100%; background: #f8f9fa;">
+                    <span>👥</span> 邀请成员
+                </button>
+                <button class="btn" onclick="showSettings()" style="width: 100%; margin-top: 10px; background: #f8f9fa;">
+                    <span>⚙️</span> 设置
                 </button>
             </div>
-
-            <div class="controls">
-                <div class="action-buttons">
-                    <button class="action-btn" onclick="clearChat()">
-                        <span>🗑️</span> 清空对话
-                    </button>
-                    <button class="action-btn" onclick="copyChat()">
-                        <span>📋</span> 复制对话
-                    </button>
-                    <button class="action-btn" onclick="exportChat()">
-                        <span>💾</span> 导出对话
-                    </button>
-                    <button class="action-btn" onclick="showSettings()">
-                        <span>⚙️</span> API设置
-                    </button>
+        </div>
+        
+        <!-- 中间：多人聊天室 -->
+        <div class="chat-room">
+            <!-- 聊天头部 -->
+            <div style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 id="session-title">家庭沟通协调会话</h3>
+                    <div style="display: flex; gap: 10px; margin-top: 5px; font-size: 14px; color: #666;">
+                        <span>👥 参与者: 张三, 李四</span>
+                        <span>|</span>
+                        <span>🕐 已进行: 15分钟</span>
+                    </div>
+                </div>
+                <div class="consensus-progress" style="width: 200px;">
+                    <div class="progress-bar" style="width: 65%;"></div>
+                </div>
+            </div>
+            
+            <!-- 聊天内容区域 -->
+            <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 20px;">
+                <!-- 消息动态加载 -->
+            </div>
+            
+            <!-- 输入区域 -->
+            <div style="padding: 20px; border-top: 1px solid var(--border-color); background: #f8f9fa;">
+                <!-- 免责声明 -->
+                <div class="disclaimer" id="disclaimer">
+                    <strong>重要提示：</strong> AI仅提供引导和提问支持，不提供专业心理咨询建议。如需专业帮助，请咨询认证心理咨询师。
                 </div>
                 
-                <button class="settings-btn" onclick="toggleTheme()">
-                    切换主题
-                </button>
+                <!-- 输入框 -->
+                <div style="display: flex; gap: 15px;">
+                    <textarea 
+                        id="message-input" 
+                        placeholder="输入您的想法...（按Ctrl+Enter发送）"
+                        style="flex: 1; padding: 15px; border: 2px solid var(--border-color); border-radius: 10px; resize: none; min-height: 60px; font-family: inherit;"
+                        rows="2"
+                    ></textarea>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button class="btn btn-primary" onclick="sendMessage()">
+                            <span>发送</span>
+                        </button>
+                        <button class="btn" onclick="toggleVoiceInput()" style="background: #f8f9fa;">
+                            <span>🎤</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 快速引导按钮 -->
+                <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                    <button class="btn" onclick="aiGuide('expressFeeling')" style="font-size: 13px; padding: 8px 15px; background: #f8f9fa;">
+                        💬 表达感受
+                    </button>
+                    <button class="btn" onclick="aiGuide('clarifyNeeds')" style="font-size: 13px; padding: 8px 15px; background: #f8f9fa;">
+                        🎯 澄清需求
+                    </button>
+                    <button class="btn" onclick="aiGuide('findCommonGround')" style="font-size: 13px; padding: 8px 15px; background: #f8f9fa;">
+                        🤝 寻找共同点
+                    </button>
+                    <button class="btn" onclick="aiGuide('suggestSolution')" style="font-size: 13px; padding: 8px 15px; background: #f8f9fa;">
+                        💡 方案建议
+                    </button>
+                </div>
             </div>
         </div>
-
-        <div class="footer">
-            <p>Powered by 国产大模型 | 数据仅保存在本地浏览器 | 无需科学上网</p>
-            <p style="margin-top: 5px; font-size: 11px; opacity: 0.7;">
-                推荐优先使用DeepSeek：价格便宜，响应快速，国内网络可直接访问
-            </p>
-        </div>
-    </div>
-
-    <!-- 设置面板 -->
-    <div class="overlay" id="overlay"></div>
-    <div class="settings-panel" id="settings-panel">
-        <button class="close-btn" onclick="hideSettings()">×</button>
-        <h3 style="margin-bottom: 25px; color: #6a11cb;">API密钥配置</h3>
         
-        <div class="api-input-group">
-            <label for="deepseek-key">DeepSeek API Key</label>
-            <input type="password" id="deepseek-key" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxx" 
-                   value="sk-你的DeepSeek-API密钥">
-            <small style="color: #666; display: block; margin-top: 5px;">
-                获取地址：<a href="https://platform.deepseek.com" target="_blank">platform.deepseek.com</a>
-            </small>
-        </div>
-
-        <div class="api-input-group">
-            <label for="qwen-key">通义千问 API Key</label>
-            <input type="password" id="qwen-key" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxx">
-            <small style="color: #666; display: block; margin-top: 5px;">
-                获取地址：<a href="https://help.aliyun.com/zh/dashscope/" target="_blank">阿里云DashScope</a>
-            </small>
-        </div>
-
-        <div class="api-input-group">
-            <label for="glm-key">智谱GLM API Key</label>
-            <input type="password" id="glm-key" placeholder="xxxxxxxxxxxxxxxxxxxxxxxx">
-            <small style="color: #666; display: block; margin-top: 5px;">
-                获取地址：<a href="https://open.bigmodel.cn" target="_blank">open.bigmodel.cn</a>
-            </small>
-        </div>
-
-        <div style="display: flex; gap: 10px; margin-top: 30px;">
-            <button class="settings-btn" style="flex: 1;" onclick="saveApiKeys()">
-                保存设置
-            </button>
-            <button class="action-btn" style="flex: 1;" onclick="hideSettings()">
-                取消
-            </button>
+        <!-- 右侧：用户面板 -->
+        <div class="right-panel">
+            <h3 style="margin-bottom: 20px; color: var(--primary-color);">会话成员</h3>
+            <div id="user-list">
+                <!-- 用户动态加载 -->
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <h4 style="margin-bottom: 15px; color: var(--primary-color);">共识进度</h4>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>理解阶段</span>
+                        <span>65%</span>
+                    </div>
+                    <div class="consensus-progress">
+                        <div class="progress-bar" style="width: 65%;"></div>
+                    </div>
+                    <div style="font-size: 13px; color: #666; margin-top: 15px;">
+                        当前共识点：双方已理解彼此需求
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <h4 style="margin-bottom: 15px; color: var(--primary-color);">工具</h4>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button class="btn" onclick="exportSession()" style="justify-content: start; background: #f8f9fa;">
+                        <span>📥</span> 导出会话记录
+                    </button>
+                    <button class="btn" onclick="showFileUpload()" style="justify-content: start; background: #f8f9fa;">
+                        <span>📎</span> 上传文件分析
+                    </button>
+                    <button class="btn" onclick="showDataAnalysis()" style="justify-content: start; background: #f8f9fa;">
+                        <span>📊</span> 情绪分析报告
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-
+    
+    <!-- 模态框容器 -->
+    <div id="modal-container"></div>
+    
     <script>
-        // ================= 配置区域 =================
-        // 默认API配置（用户可以在界面中修改）
-        const API_CONFIG = {
-            deepseek: {
-                name: 'DeepSeek',
-                endpoint: 'https://api.deepseek.com/chat/completions',
-                apiKey: 'sk-4a06f3a0cdf54df49c40a080808fc024', // 在这里填写你的DeepSeek密钥
-                model: 'deepseek-chat',
-                maxTokens: 2000,
-                temperature: 0.7
-            },
-            qwen: {
-                name: '通义千问',
-                endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
-                apiKey: '',
-                model: 'qwen-max',
-                maxTokens: 2000,
-                temperature: 0.8
-            },
-            glm: {
-                name: '智谱GLM',
-                endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-                apiKey: '',
-                model: 'glm-4',
-                maxTokens: 2000,
-                temperature: 0.7
-            },
-            spark: {
-                name: '讯飞星火',
-                endpoint: 'wss://spark-api.xf-yun.com/v3.5/chat',
-                apiKey: '',
-                model: 'spark-3.5',
-                maxTokens: 2000,
-                temperature: 0.7
-            },
-            ernie: {
-                name: '文心一言',
-                endpoint: 'https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions',
-                apiKey: '',
-                model: 'ernie-4.0',
-                maxTokens: 2000,
-                temperature: 0.7
+        // ================= 核心配置 =================
+        const APP_CONFIG = {
+            appName: "ConsensusAI",
+            version: "1.0.0",
+            maxUsersPerSession: 20,
+            sessionTimeout: 3600, // 1小时
+            aiGuidanceModes: {
+                family: "家庭关系协调",
+                couple: "伴侣沟通",
+                workplace: "职场协作",
+                friendship: "朋友关系"
             }
         };
-
-        // ================= 变量初始化 =================
-        let currentModel = 'deepseek';
-        let chatHistory = [
-            {
-                role: 'system',
-                content: '你是一个有帮助的AI助手，请用中文简洁、清晰地回答用户的问题。保持友好和专业的语气。'
-            }
-        ];
-        let isDarkTheme = false;
         
-        // ================= DOM元素 =================
-        const chatElement = document.getElementById('chat');
-        const inputElement = document.getElementById('input');
-        const sendButton = document.getElementById('send-btn');
-        const loadingElement = document.getElementById('loading');
-        const apiStatusElement = document.getElementById('api-status');
-        const settingsPanel = document.getElementById('settings-panel');
-        const overlay = document.getElementById('overlay');
+        // ================= 状态管理 =================
+        let currentSession = null;
+        let currentUsers = [];
+        let chatHistory = [];
+        let userProfile = {};
         
-        // ================= 核心功能 =================
-        
-        // 发送消息
-        async function sendMessage() {
-            const message = inputElement.value.trim();
-            if (!message) return;
-            
-            // 禁用输入和按钮
-            inputElement.disabled = true;
-            sendButton.disabled = true;
-            
-            // 显示用户消息
-            addMessage(message, 'user');
-            
-            // 清空输入框
-            inputElement.value = '';
-            
-            // 调整输入框高度
-            adjustInputHeight();
-            
-            // 显示加载动画
-            loadingElement.classList.add('active');
-            
-            try {
-                // 添加到历史记录
-                chatHistory.push({ role: 'user', content: message });
-                
-                // 获取AI回复
-                const aiResponse = await getAIResponse();
-                
-                // 添加到历史记录
-                chatHistory.push({ role: 'assistant', content: aiResponse });
-                
-                // 显示AI回复
-                addMessage(aiResponse, 'ai');
-                
-                // 保存到本地存储
-                saveChatToLocalStorage();
-                
-            } catch (error) {
-                console.error('API调用错误:', error);
-                let errorMessage = `抱歉，我遇到了一些问题：${error.message}`;
-                
-                // 友好错误提示
-                if (error.message.includes('API密钥') || error.message.includes('apiKey')) {
-                    errorMessage = '请先配置API密钥！点击"API设置"按钮，填写对应模型的API密钥。';
-                } else if (error.message.includes('网络')) {
-                    errorMessage = '网络连接失败，请检查网络设置后重试。';
-                } else if (error.message.includes('余额')) {
-                    errorMessage = 'API调用失败，可能是API密钥无效或余额不足。';
-                }
-                
-                addMessage(errorMessage, 'ai');
-                
-            } finally {
-                // 恢复输入和按钮
-                inputElement.disabled = false;
-                sendButton.disabled = false;
-                inputElement.focus();
-                
-                // 隐藏加载动画
-                loadingElement.classList.remove('active');
-            }
-        }
-        
-        // 调用AI API
-        async function getAIResponse() {
-            const config = API_CONFIG[currentModel];
-            
-            // 检查API密钥
-            if (!config.apiKey || config.apiKey.includes('你的')) {
-                throw new Error('请先配置API密钥');
-            }
-            
-            let endpoint = config.endpoint;
-            let headers = {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${config.apiKey}`
-            };
-            
-            // 特殊处理不同API
-            let requestBody = {
-                model: config.model,
-                messages: chatHistory,
-                max_tokens: config.maxTokens,
-                temperature: config.temperature,
-                stream: false
-            };
-            
-            // 通义千问特殊参数
-            if (currentModel === 'qwen') {
-                requestBody = {
-                    model: config.model,
-                    input: {
-                        messages: chatHistory.slice(1) // 去掉system消息
-                    },
-                    parameters: {
-                        max_tokens: config.maxTokens,
-                        temperature: config.temperature
-                    }
-                };
-            }
-            
-            // 智谱GLM特殊处理
-            if (currentModel === 'glm') {
-                headers = {
-                    'Content-Type': 'application/json',
-                    'Authorization': `${config.apiKey}`
-                };
-            }
-            
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify(requestBody)
-            });
-            
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('API响应错误:', errorText);
-                throw new Error(`API请求失败: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            // 解析不同API的响应格式
-            if (currentModel === 'qwen') {
-                return data.output.text || data.output.choices[0].message.content;
-            } else if (currentModel === 'glm') {
-                return data.choices[0].message.content;
-            } else {
-                return data.choices[0].message.content;
-            }
-        }
-        
-        // 添加消息到聊天界面
-        function addMessage(content, sender) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'ai-message'}`;
-            
-            const messageHeader = document.createElement('div');
-            messageHeader.className = 'message-header';
-            
-            const avatar = document.createElement('div');
-            avatar.className = `avatar ${sender === 'user' ? 'user-avatar' : 'ai-avatar'}`;
-            avatar.textContent = sender === 'user' ? '你' : 'AI';
-            
-            const senderName = document.createElement('span');
-            senderName.textContent = sender === 'user' ? '你' : API_CONFIG[currentModel].name;
-            
-            messageHeader.appendChild(avatar);
-            messageHeader.appendChild(senderName);
-            
-            const messageContent = document.createElement('div');
-            messageContent.className = 'message-content';
-            
-            // 简单格式化处理
-            const formattedContent = formatMessage(content);
-            messageContent.innerHTML = formattedContent;
-            
-            messageDiv.appendChild(messageHeader);
-            messageDiv.appendChild(messageContent);
-            
-            chatElement.appendChild(messageDiv);
-            
-            // 滚动到底部
-            chatElement.scrollTop = chatElement.scrollHeight;
-        }
-        
-        // 消息格式化
-        function formatMessage(text) {
-            // 处理代码块
-            text = text.replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
-            // 处理行内代码
-            text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-            // 处理换行
-            text = text.replace(/\n/g, '<br>');
-            // 处理加粗
-            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            return text;
-        }
-        
-        // ================= 模型切换 =================
-        
-        // 初始化模型按钮事件
-        document.querySelectorAll('.model-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                // 更新按钮状态
-                document.querySelectorAll('.model-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                this.classList.add('active');
-                
-                // 切换模型
-                const model = this.dataset.model;
-                switchModel(model);
-            });
+        // ================= 初始化函数 =================
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            loadSampleData();
         });
         
-        // 切换模型
-        function switchModel(model) {
-            currentModel = model;
-            const config = API_CONFIG[model];
+        function initializeApp() {
+            // 加载用户配置
+            loadUserProfile();
             
-            // 更新状态显示
-            if (config.apiKey && !config.apiKey.includes('你的')) {
-                apiStatusElement.textContent = `${config.name} API 已配置`;
-                apiStatusElement.style.color = '#4CAF50';
-            } else {
-                apiStatusElement.textContent = `${config.name} API 未配置`;
-                apiStatusElement.style.color = '#ff9800';
+            // 设置事件监听
+            setupEventListeners();
+            
+            // 更新在线状态
+            updateOnlineStatus();
+        }
+        
+        function loadSampleData() {
+            // 示例会话数据
+            currentSession = {
+                id: 'session-001',
+                title: '家庭沟通协调会话',
+                type: 'family',
+                created: new Date(),
+                users: [
+                    { id: 'user-001', name: '张三', role: '父亲', color: '#3498db' },
+                    { id: 'user-002', name: '李四', role: '儿子', color: '#2ecc71' }
+                ],
+                consensus: 65
+            };
+            
+            // 示例消息
+            chatHistory = [
+                {
+                    id: 'msg-001',
+                    userId: 'user-001',
+                    userName: '张三',
+                    userRole: '父亲',
+                    content: '我希望儿子能更专注于学习，少玩手机游戏。',
+                    timestamp: new Date(Date.now() - 3600000),
+                    type: 'user'
+                },
+                {
+                    id: 'msg-002',
+                    userId: 'user-002',
+                    userName: '李四',
+                    userRole: '儿子',
+                    content: '我觉得学习压力很大，玩游戏是放松的方式。',
+                    timestamp: new Date(Date.now() - 3540000),
+                    type: 'user'
+                },
+                {
+                    id: 'msg-003',
+                    userId: 'ai',
+                    userName: 'AI引导师',
+                    content: '我理解双方都有自己的需求和困扰。让我们先明确一下核心问题：父亲关心的是学业成绩，儿子需要的是压力释放。我们可以一起寻找既能保证学习效果，又能适当放松的方案吗？',
+                    timestamp: new Date(Date.now() - 3500000),
+                    type: 'ai'
+                }
+            ];
+            
+            // 渲染界面
+            renderSession();
+            renderMessages();
+            renderUserList();
+        }
+        
+        // ================= 渲染函数 =================
+        function renderSession() {
+            if (currentSession) {
+                document.getElementById('session-title').textContent = currentSession.title;
+                updateConsensusProgress(currentSession.consensus);
             }
+        }
+        
+        function renderMessages() {
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = '';
             
-            // 添加到对话历史
-            addMessage(`已切换到${config.name}模型，现在可以开始对话了。`, 'ai');
+            chatHistory.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${msg.type === 'user' ? 'user-message' : 'ai-message'}`;
+                
+                // 用户信息
+                const userInfo = document.createElement('div');
+                userInfo.style.cssText = 'display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 14px;';
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'user-avatar';
+                avatar.style.background = msg.type === 'user' ? 
+                    (currentSession.users.find(u => u.id === msg.userId)?.color || '#3498db') : 
+                    'linear-gradient(135deg, #9b59b6, #8e44ad)';
+                avatar.textContent = msg.userName.charAt(0);
+                
+                const infoText = document.createElement('div');
+                infoText.innerHTML = `<strong>${msg.userName}</strong> ${msg.userRole ? `<span style="color: #666; font-size: 12px;">(${msg.userRole})</span>` : ''}`;
+                
+                userInfo.appendChild(avatar);
+                userInfo.appendChild(infoText);
+                
+                // 消息内容
+                const content = document.createElement('div');
+                content.textContent = msg.content;
+                
+                // 时间戳
+                const time = document.createElement('div');
+                time.style.cssText = 'font-size: 12px; color: #999; margin-top: 8px; text-align: right;';
+                time.textContent = formatTime(msg.timestamp);
+                
+                messageDiv.appendChild(userInfo);
+                messageDiv.appendChild(content);
+                messageDiv.appendChild(time);
+                
+                container.appendChild(messageDiv);
+            });
+            
+            // 滚动到底部
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function renderUserList() {
+            const container = document.getElementById('user-list');
+            container.innerHTML = '';
+            
+            currentSession.users.forEach(user => {
+                const userDiv = document.createElement('div');
+                userDiv.style.cssText = 'display: flex; align-items: center; gap: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px;';
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'user-avatar';
+                avatar.style.background = user.color;
+                avatar.textContent = user.name.charAt(0);
+                
+                const info = document.createElement('div');
+                info.innerHTML = `
+                    <div style="font-weight: 600;">${user.name}</div>
+                    <div style="font-size: 13px; color: #666;">${user.role}</div>
+                `;
+                
+                const status = document.createElement('div');
+                status.style.cssText = 'width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; margin-left: auto;';
+                
+                userDiv.appendChild(avatar);
+                userDiv.appendChild(info);
+                userDiv.appendChild(status);
+                
+                container.appendChild(userDiv);
+            });
+        }
+        
+        // ================= 核心功能 =================
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const content = input.value.trim();
+            
+            if (!content) return;
+            
+            // 创建消息对象
+            const newMessage = {
+                id: 'msg-' + Date.now(),
+                userId: 'user-001', // 当前用户ID
+                userName: '张三', // 当前用户名
+                userRole: '父亲',
+                content: content,
+                timestamp: new Date(),
+                type: 'user'
+            };
+            
+            // 添加到历史
+            chatHistory.push(newMessage);
+            
+            // 渲染消息
+            renderMessages();
+            
+            // 清空输入框
+            input.value = '';
+            
+            // 自动调整输入框高度
+            adjustInputHeight();
+            
+            // AI自动响应（模拟）
+            setTimeout(() => {
+                aiResponse(content);
+            }, 1000);
+        }
+        
+        function aiResponse(userMessage) {
+            const responses = {
+                lowConsensus: [
+                    "我注意到双方有不同的看法。让我们先各自表达一下对这个问题的最真实感受好吗？",
+                    "看起来我们需要更多理解彼此的角度。您能说一下为什么这件事对您如此重要吗？",
+                    "我理解这可能有挑战性。我们可以尝试从一个更中立的角度来看这个问题吗？"
+                ],
+                mediumConsensus: [
+                    "很好，我们已经找到了一些共同点。接下来我们可以讨论一下各自的底线需求是什么？",
+                    "我欣赏双方都愿意沟通的态度。现在我们是否可以考虑一些折中的方案？",
+                    "让我们试着把各自的需求列出来，看看哪些是可以互相满足的。"
+                ],
+                highConsensus: [
+                    "我们已经取得了很大进展！是否可以考虑一个试行方案，看看效果如何？",
+                    "基于目前的共识，我建议我们可以制定一个具体的行动计划。",
+                    "很高兴看到双方达成理解。我们可以总结一下达成的共识点吗？"
+                ]
+            };
+            
+            // 根据共识程度选择回复
+            let responseType = 'lowConsensus';
+            if (currentSession.consensus > 70) responseType = 'highConsensus';
+            else if (currentSession.consensus > 40) responseType = 'mediumConsensus';
+            
+            const response = responses[responseType][Math.floor(Math.random() * responses[responseType].length)];
+            
+            const aiMessage = {
+                id: 'msg-' + Date.now(),
+                userId: 'ai',
+                userName: 'AI引导师',
+                content: response + '\n\n<small style="color: #666;">请注意：AI仅提供引导支持，不提供专业建议。</small>',
+                timestamp: new Date(),
+                type: 'ai'
+            };
+            
+            chatHistory.push(aiMessage);
+            renderMessages();
+            
+            // 更新共识进度（模拟）
+            updateConsensusProgress(currentSession.consensus + 5);
+        }
+        
+        // ================= 辅助函数 =================
+        function aiGuide(mode) {
+            const guides = {
+                expressFeeling: "请试着用'我感到...当...因为...'的句式来表达您的感受。",
+                clarifyNeeds: "请问您在这件事中最核心的需求是什么？什么是最不能妥协的？",
+                findCommonGround: "我们可以先列出双方都认同的事实或价值观吗？",
+                suggestSolution: "基于目前的讨论，您认为哪些方案是双方都可能接受的？"
+            };
+            
+            const input = document.getElementById('message-input');
+            input.value = guides[mode] + '\n' + (input.value || '');
+            adjustInputHeight();
+        }
+        
+        function updateConsensusProgress(percent) {
+            if (percent > 100) percent = 100;
+            if (percent < 0) percent = 0;
+            
+            currentSession.consensus = percent;
+            document.querySelector('.progress-bar').style.width = percent + '%';
+            
+            // 更新共识文本
+            let consensusText = '';
+            if (percent < 30) consensusText = '初步交流阶段';
+            else if (percent < 60) consensusText = '相互理解阶段';
+            else if (percent < 80) consensusText = '共识形成阶段';
+            else consensusText = '接近达成共识';
+            
+            document.querySelector('.progress-bar').parentElement.nextElementSibling.textContent = 
+                `当前共识点：${consensusText}`;
+        }
+        
+        function adjustInputHeight() {
+            const input = document.getElementById('message-input');
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+        }
+        
+        function formatTime(date) {
+            return date.toLocaleTimeString('zh-CN', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
+        
+        function updateOnlineStatus() {
+            const count = currentSession ? currentSession.users.length : 0;
+            document.getElementById('online-count').textContent = `在线: ${count}人`;
+        }
+        
+        // ================= 模态框函数 =================
+        function showNewSessionModal() {
+            alert('新建会话功能 - 将在完整版中实现');
+            // 这里可以添加创建新会话的完整逻辑
+        }
+        
+        function inviteUsers() {
+            alert('邀请成员功能 - 将在完整版中实现');
+            // 这里可以添加邀请用户的完整逻辑
+        }
+        
+        function showSettings() {
+            alert('设置功能 - 将在完整版中实现');
+            // 这里可以添加设置页面的完整逻辑
         }
         
         // ================= 工具函数 =================
-        
-        // 调整输入框高度
-        function adjustInputHeight() {
-            inputElement.style.height = 'auto';
-            inputElement.style.height = Math.min(inputElement.scrollHeight, 120) + 'px';
+        function toggleVoiceInput() {
+            alert('语音输入功能 - 将在完整版中实现');
+            // 这里可以添加语音输入的完整逻辑
         }
         
-        // 清空对话
-        function clearChat() {
-            if (confirm('确定要清空所有对话吗？历史记录将被删除。')) {
-                chatElement.innerHTML = `
-                    <div class="message ai-message">
-                        <div class="message-header">
-                            <div class="avatar ai-avatar">AI</div>
-                            <span>AI助手</span>
-                        </div>
-                        <div class="message-content">
-                            对话已清空，我可以重新开始为你服务。请选择AI模型后开始对话！
-                        </div>
-                    </div>
-                `;
-                
-                chatHistory = [
-                    {
-                        role: 'system',
-                        content: '你是一个有帮助的AI助手，请用中文简洁、清晰地回答用户的问题。保持友好和专业的语气。'
-                    }
-                ];
-                
-                localStorage.removeItem('ai_chat_history');
-            }
-        }
-        
-        // 复制对话
-        function copyChat() {
-            const messages = Array.from(chatElement.querySelectorAll('.message-content'))
-                .map(content => {
-                    const isUser = content.closest('.user-message');
-                    const sender = isUser ? '你' : 'AI';
-                    return `${sender}: ${content.textContent}`;
-                })
-                .join('\n\n');
+        function exportSession() {
+            const sessionData = {
+                session: currentSession,
+                messages: chatHistory,
+                exportTime: new Date().toISOString()
+            };
             
-            navigator.clipboard.writeText(messages)
-                .then(() => alert('对话已复制到剪贴板！'))
-                .catch(() => {
-                    // 备用方法
-                    const textArea = document.createElement('textarea');
-                    textArea.value = messages;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                    alert('对话已复制到剪贴板！');
-                });
-        }
-        
-        // 导出对话
-        function exportChat() {
-            const messages = Array.from(chatElement.querySelectorAll('.message-content'))
-                .map(content => {
-                    const isUser = content.closest('.user-message');
-                    const sender = isUser ? '你' : 'AI';
-                    return `${sender}: ${content.textContent}`;
-                })
-                .join('\n\n');
-            
-            const blob = new Blob([messages], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
+            const dataStr = JSON.stringify(sessionData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `AI对话记录_${new Date().toLocaleDateString()}.txt`;
+            a.download = `consensusai-session-${currentSession.id}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-        }
-        
-        // 切换主题
-        function toggleTheme() {
-            isDarkTheme = !isDarkTheme;
-            document.body.classList.toggle('dark-theme', isDarkTheme);
-            localStorage.setItem('ai_chat_theme', isDarkTheme ? 'dark' : 'light');
-        }
-        
-        // ================= 设置面板功能 =================
-        
-        function showSettings() {
-            settingsPanel.classList.add('active');
-            overlay.classList.add('active');
             
-            // 加载保存的API密钥
-            const savedKeys = JSON.parse(localStorage.getItem('ai_api_keys') || '{}');
-            document.getElementById('deepseek-key').value = savedKeys.deepseek || API_CONFIG.deepseek.apiKey;
-            document.getElementById('qwen-key').value = savedKeys.qwen || '';
-            document.getElementById('glm-key').value = savedKeys.glm || '';
+            alert('会话记录已导出为JSON文件');
         }
         
-        function hideSettings() {
-            settingsPanel.classList.remove('active');
-            overlay.classList.remove('active');
+        function showFileUpload() {
+            alert('文件上传功能 - 将在完整版中实现');
+            // 这里可以添加文件上传的完整逻辑
         }
         
-        function saveApiKeys() {
-            const keys = {
-                deepseek: document.getElementById('deepseek-key').value.trim(),
-                qwen: document.getElementById('qwen-key').value.trim(),
-                glm: document.getElementById('glm-key').value.trim()
-            };
-            
-            // 更新API配置
-            API_CONFIG.deepseek.apiKey = keys.deepseek;
-            API_CONFIG.qwen.apiKey = keys.qwen;
-            API_CONFIG.glm.apiKey = keys.glm;
-            
-            // 保存到本地存储
-            localStorage.setItem('ai_api_keys', JSON.stringify(keys));
-            
-            // 更新状态显示
-            switchModel(currentModel);
-            
-            hideSettings();
-            alert('API密钥已保存！');
-        }
-        
-        // ================= 数据持久化 =================
-        
-        function saveChatToLocalStorage() {
-            const saveData = {
-                history: chatHistory,
-                timestamp: new Date().toISOString(),
-                model: currentModel
-            };
-            localStorage.setItem('ai_chat_history', JSON.stringify(saveData));
-        }
-        
-        function loadChatFromLocalStorage() {
-            try {
-                const saved = localStorage.getItem('ai_chat_history');
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    chatHistory = data.history || chatHistory;
-                    currentModel = data.model || 'deepseek';
-                    
-                    // 恢复模型选择
-                    document.querySelectorAll('.model-btn').forEach(btn => {
-                        btn.classList.toggle('active', btn.dataset.model === currentModel);
-                    });
-                    switchModel(currentModel);
-                    
-                    // 重绘对话
-                    chatElement.innerHTML = '';
-                    chatHistory.forEach(msg => {
-                        if (msg.role === 'user') {
-                            addMessage(msg.content, 'user');
-                        } else if (msg.role === 'assistant') {
-                            addMessage(msg.content, 'ai');
-                        }
-                    });
-                }
-                
-                // 加载API密钥
-                const savedKeys = JSON.parse(localStorage.getItem('ai_api_keys') || '{}');
-                if (savedKeys.deepseek) {
-                    API_CONFIG.deepseek.apiKey = savedKeys.deepseek;
-                }
-                if (savedKeys.qwen) {
-                    API_CONFIG.qwen.apiKey = savedKeys.qwen;
-                }
-                if (savedKeys.glm) {
-                    API_CONFIG.glm.apiKey = savedKeys.glm;
-                }
-                
-            } catch (error) {
-                console.error('加载历史记录失败:', error);
-            }
+        function showDataAnalysis() {
+            alert('情绪分析报告 - 将在完整版中实现');
+            // 这里可以添加数据分析的完整逻辑
         }
         
         // ================= 事件监听 =================
-        
-        // 输入框按键事件
-        inputElement.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-        
-        // 输入框高度自适应
-        inputElement.addEventListener('input', adjustInputHeight);
-        
-        // 点击遮罩关闭设置
-        overlay.addEventListener('click', hideSettings);
-        
-        // 页面加载时
-        document.addEventListener('DOMContentLoaded', function() {
-            // 加载历史记录和设置
-            loadChatFromLocalStorage();
+        function setupEventListeners() {
+            const input = document.getElementById('message-input');
             
-            // 加载主题
-            const savedTheme = localStorage.getItem('ai_chat_theme');
-            if (savedTheme === 'dark') {
-                isDarkTheme = true;
-                document.body.classList.add('dark-theme');
-            }
+            // Ctrl+Enter 发送
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
             
-            // 聚焦到输入框
-            inputElement.focus();
-            
-            // 更新API状态显示
-            switchModel(currentModel);
-        });
+            // 输入框高度自适应
+            input.addEventListener('input', adjustInputHeight);
+        }
         
-        // 防止页面意外关闭
-        window.addEventListener('beforeunload', function(e) {
-            if (chatHistory.length > 1) {
-                saveChatToLocalStorage();
+        // ================= 用户配置 =================
+        function loadUserProfile() {
+            const saved = localStorage.getItem('consensusai_profile');
+            if (saved) {
+                userProfile = JSON.parse(saved);
+            } else {
+                userProfile = {
+                    name: '张三',
+                    subscription: 'professional',
+                    settings: {
+                        theme: 'light',
+                        notifications: true,
+                        autoSave: true
+                    }
+                };
             }
-        });
+        }
         
-        // ================= 初始化 =================
-        // 自动调整初始输入框高度
-        setTimeout(adjustInputHeight, 100);
+        function saveUserProfile() {
+            localStorage.setItem('consensusai_profile', JSON.stringify(userProfile));
+        }
     </script>
 </body>
 </html>
